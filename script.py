@@ -10,16 +10,10 @@ saida_anterior = 0.0
 saida = 0.0
 dt = 0.02
 
-def checarU(mapa, nivel):
-    if(mapa == 2):
-        return 8
-    else:
-        return 10
-
 def computacaoInicial(x, y, mapa, nivel, profundidade, dt, alvo_x, alvo_y):
     melhorDist = np.inf     #minDistance
     melhorI = 0             #bestControlSignal
-    uMax = checarU(mapa, nivel)
+    uMax = 10
     for i in range(-uMax, uMax, 1):
         for j in range(-uMax, uMax, 1):
             valorUI = i / 10.0
@@ -32,7 +26,8 @@ def computacaoInicial(x, y, mapa, nivel, profundidade, dt, alvo_x, alvo_y):
             x1 = x
             y1 = y
             for k in range(profundidade):
-                currentDistance = m.sqrt((x1 - alvo_x) * (x1 - alvo_x) + (y1 - alvo_y)*(y1 - alvo_y))
+                #positions.append((x1, y1))
+                currentDistance = (x1 - alvo_x) * (x1 - alvo_x) + (y1 - alvo_y)*(y1 - alvo_y)
                 if currentDistance < minDistance:
                     minDistance = currentDistance
                 uIndex = m.floor(uLength * k / profundidade)
@@ -40,6 +35,7 @@ def computacaoInicial(x, y, mapa, nivel, profundidade, dt, alvo_x, alvo_y):
                 xp = mapas.define_equacoes(mapa, nivel, x1, y1, u)
                 x1 = x1 + xp[0]*dt
                 y1 = y1 + xp[1]*dt
+            #for l in range(len(positions)):
             if(minDistance < melhorDist):
                 melhorDist = minDistance
                 melhorI = valorUI
@@ -78,11 +74,11 @@ def receber_mensagem(cliente, servidor, pacote):
         menor = (jogador[0] - alvo[0]) * (jogador[0] - alvo[0]) + (jogador[1] - alvo[1])*(jogador[1] - alvo[1])
         Tx = alvo[0]
         Ty = alvo[1]
-        limMax = 0.9
+        
         """if(abs(jogador[0]) > limMax or abs(jogador[1]) > limMax):
             Tx = -jogador[0]
             Ty = -jogador[1]"""
-        if(len(caixas) > 1 and mapa != 2):
+        '''if(len(caixas) > 1):
             if((jogador[0] - caixas[0][0]) * (jogador[0] - caixas[0][0]) + (jogador[1] - caixas[0][1])*(jogador[1] - caixas[0][1]) < menor):
                 menor = (jogador[0] - caixas[0][0]) * (jogador[0] - caixas[0][0]) + (jogador[1] - caixas[0][1])*(jogador[1] - caixas[0][1])
                 Tx = caixas[0][0]
@@ -96,19 +92,15 @@ def receber_mensagem(cliente, servidor, pacote):
                     if((jogador[0] - caixas[2][0]) * (jogador[0] - caixas[2][0]) + (jogador[1] - caixas[2][1])*(jogador[1] - caixas[2][1]) < menor):
                         menor = (jogador[0] - caixas[2][0]) * (jogador[0] - caixas[2][0]) + (jogador[1] - caixas[2][1])*(jogador[1] - caixas[2][1])
                         Tx = caixas[2][0]
-                        Ty = caixas[2][1]
-        saida = const*saida + (1 - const)*computacaoInicial(jogador[0], jogador[1], mapa, nivel, 20, dt, Tx, Ty)
+                        Ty = caixas[2][1]'''
+        saida = saida + (const)*computacaoInicial(jogador[0], jogador[1], mapa, nivel, 20, dt, Tx, Ty)
         if saida >= 1:
             saida = 0.9
         if saida <= -1:
             saida = -0.9
-    else:
-        saida = 0
 
-    #saida_anterior = saida
     pacote_anterior = values 
     servidor.send_message(cliente, str(saida))
-    time.sleep(0.01)
 
 porta.set_fn_new_client(cliente)
 porta.set_fn_message_received(receber_mensagem)
