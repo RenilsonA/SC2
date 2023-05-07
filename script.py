@@ -10,47 +10,6 @@ saida_anterior = 0.0
 saida = 0.0
 dt = 0.02
 
-def constrain(val, min_val, max_val):
-    return max(min(val, max_val), min_val)
-
-def computeBestDistance(targetX, targetY, positions):
-    minDistance = 100000
-    
-    for (i, position) in enumerate(positions):
-        currentDistance = ((position[0] - targetX) * (position[0] - targetX) + (position[1] - targetY)*(position[1] - targetY))
-        if currentDistance < minDistance:
-            minDistance = currentDistance
-
-    return minDistance
-
-def computePositions(x, y, U, land, level, testDepth, dt):
-    positions = []
-    uLength = len(U)
-    U.append(U[uLength-1])
-    p = [x, y]
-    for i in range(testDepth):
-        positions.append([p[0], p[1]])
-        uIndex = m.floor(uLength * i / testDepth)
-        u = U[uIndex]
-        xp = mapas.define_equacoes(land, level, p[0], p[1], u)
-        p[0] += xp[0]*dt
-        p[1] += xp[1]*dt
-    return positions
-
-def computaMelhorU(x, y, mapa, nivel, profundidade, dt, alvo_x, alvo_y):
-    melhorDist = np.inf     #minDistance
-    melhorI = 0             #bestControlSignal
-    for i in range(-100, 100, 1):
-        for j in range(-100, 100, 1):
-            valorUI = i / 100.0
-            valorUJ = j / 100.0
-            part = computePositions(x, y, [valorUI, valorUJ], mapa, nivel, profundidade, dt)
-            checarDist = computeBestDistance(alvo_x, alvo_y, part)
-            if(checarDist < melhorDist):
-                melhorDist = checarDist
-                melhorI = valorUI
-    return melhorI
-
 def checarU(mapa, nivel):
     if(mapa == 2):
         return 8
@@ -73,7 +32,6 @@ def computacaoInicial(x, y, mapa, nivel, profundidade, dt, alvo_x, alvo_y):
             x1 = x
             y1 = y
             for k in range(profundidade):
-                #positions.append((x1, y1))
                 currentDistance = m.sqrt((x1 - alvo_x) * (x1 - alvo_x) + (y1 - alvo_y)*(y1 - alvo_y))
                 if currentDistance < minDistance:
                     minDistance = currentDistance
@@ -82,7 +40,6 @@ def computacaoInicial(x, y, mapa, nivel, profundidade, dt, alvo_x, alvo_y):
                 xp = mapas.define_equacoes(mapa, nivel, x1, y1, u)
                 x1 = x1 + xp[0]*dt
                 y1 = y1 + xp[1]*dt
-            #for l in range(len(positions)):
             if(minDistance < melhorDist):
                 melhorDist = minDistance
                 melhorI = valorUI
