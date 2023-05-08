@@ -8,34 +8,38 @@ porta = WebsocketServer(port=6660)
 pacote_anterior = []
 saida_anterior = 0.0
 saida = 0.0
-dt = 0.02
+contador = 0
+level_anterior = 0
 
-def computacaoInicial(x, y, mapa, nivel, profundidade, dt, alvo_x, alvo_y):
-    melhorDist = np.inf     #minDistance
-    melhorI = 0             #bestControlSignal
+def computacaoInicial(x, y, mapa, nivel, quant, dt, destino_x, destino_y):
+    melhorDist = np.inf
+    melhorI = 0        
     uMax = 10
     for i in range(-uMax, uMax, 1):
         for j in range(-uMax, uMax, 1):
-            valorUI = i / 10.0
-            valorUJ = j / 10.0
+            valorUI = i / uMax
+            valorUJ = j / uMax
             minDistance = np.inf
-            positions = []
-            vatorU = [valorUI, valorUJ]
-            uLength = len(vatorU)
-            vatorU.append(vatorU[uLength-1])
             x1 = x
             y1 = y
-            for k in range(profundidade):
-                #positions.append((x1, y1))
-                currentDistance = (x1 - alvo_x) * (x1 - alvo_x) + (y1 - alvo_y)*(y1 - alvo_y)
+            u = valorUI
+            for k in range(quant):
+                currentDistance = m.sqrt((-x1 + destino_x) * (-x1 + destino_x) + (-y1 + destino_y)*(-y1 + destino_y))
                 if currentDistance < minDistance:
                     minDistance = currentDistance
-                uIndex = m.floor(uLength * k / profundidade)
-                u = vatorU[uIndex]
-                xp = mapas.define_equacoes(mapa, nivel, x1, y1, u)
-                x1 = x1 + xp[0]*dt
-                y1 = y1 + xp[1]*dt
-            #for l in range(len(positions)):
+                l12 = mapas.define_equacoes(mapa, nivel, x1, y1, u)
+                x1 = x1 + l12[0]*dt
+                y1 = y1 + l12[1]*dt
+                
+            u = valorUJ
+            for k in range(quant):
+                currentDistance = m.sqrt((-x1 + destino_x) * (-x1 + destino_x) + (-y1 + destino_y)*(-y1 + destino_y))
+                if currentDistance < minDistance:
+                    minDistance = currentDistance
+                l12 = mapas.define_equacoes(mapa, nivel, x1, y1, u)
+                x1 = x1 + l12[0]*dt
+                y1 = y1 + l12[1]*dt
+
             if(minDistance < melhorDist):
                 melhorDist = minDistance
                 melhorI = valorUI
@@ -64,40 +68,41 @@ def cliente(cliente, servidor):
 def receber_mensagem(cliente, servidor, pacote):
     global pacote_anterior
     global saida
-    global dt
+    global contador
+    global level_anterior
 
     values = [float(x) for x in pacote[:-1].split(",") if x.strip()]
     vitorias, mapa, nivel, jogador, alvo, caixas, caveiras = repartir_mensagens(values)
 
-    if pacote_anterior != values:
-        const = mapas.define_equacoes(mapa, nivel, 0, 0, 0, False)
-        menor = (jogador[0] - alvo[0]) * (jogador[0] - alvo[0]) + (jogador[1] - alvo[1])*(jogador[1] - alvo[1])
-        Tx = alvo[0]
-        Ty = alvo[1]
-        
-        """if(abs(jogador[0]) > limMax or abs(jogador[1]) > limMax):
-            Tx = -jogador[0]
-            Ty = -jogador[1]"""
-        '''if(len(caixas) > 1):
-            if((jogador[0] - caixas[0][0]) * (jogador[0] - caixas[0][0]) + (jogador[1] - caixas[0][1])*(jogador[1] - caixas[0][1]) < menor):
-                menor = (jogador[0] - caixas[0][0]) * (jogador[0] - caixas[0][0]) + (jogador[1] - caixas[0][1])*(jogador[1] - caixas[0][1])
-                Tx = caixas[0][0]
-                Ty = caixas[0][1]
-            if(len(caixas) > 2):
-                if((jogador[0] - caixas[1][0]) * (jogador[0] - caixas[1][0]) + (jogador[1] - caixas[1][1])*(jogador[1] - caixas[1][1]) < menor):
-                    menor = (jogador[0] - caixas[1][0]) * (jogador[0] - caixas[1][0]) + (jogador[1] - caixas[1][1])*(jogador[1] - caixas[1][1])
-                    Tx = caixas[1][0]
-                    Ty = caixas[1][1]
-                if(len(caixas) > 3):
-                    if((jogador[0] - caixas[2][0]) * (jogador[0] - caixas[2][0]) + (jogador[1] - caixas[2][1])*(jogador[1] - caixas[2][1]) < menor):
-                        menor = (jogador[0] - caixas[2][0]) * (jogador[0] - caixas[2][0]) + (jogador[1] - caixas[2][1])*(jogador[1] - caixas[2][1])
-                        Tx = caixas[2][0]
-                        Ty = caixas[2][1]'''
-        saida = saida + (const)*computacaoInicial(jogador[0], jogador[1], mapa, nivel, 20, dt, Tx, Ty)
-        if saida >= 1:
-            saida = 0.9
-        if saida <= -1:
-            saida = -0.9
+    if level_anterior != nivel:
+        level_anterior = nivel
+        saida = 0
+
+    const = mapas.define_equacoes(mapa, nivel, 0, 0, 0, False)
+    menor = (jogador[0] - alvo[0]) * (jogador[0] - alvo[0]) + (jogador[1] - alvo[1])*(jogador[1] - alvo[1])
+    Tx = alvo[0]
+    Ty = alvo[1]
+    quant = 250
+    dt = 0.01
+    limMax = 1.2
+    if(len(caixas) >= 1 and mapa != 3):
+        if((jogador[0] - caixas[0][0]) * (jogador[0] - caixas[0][0]) + (jogador[1] - caixas[0][1])*(jogador[1] - caixas[0][1]) < 4*menor):
+            menor = (jogador[0] - caixas[0][0]) * (jogador[0] - caixas[0][0]) + (jogador[1] - caixas[0][1])*(jogador[1] - caixas[0][1])
+            Tx = caixas[0][0]
+            Ty = caixas[0][1]
+        if(len(caixas) >= 2):
+            if((jogador[0] - caixas[1][0]) * (jogador[0] - caixas[1][0]) + (jogador[1] - caixas[1][1])*(jogador[1] - caixas[1][1]) < 4*menor):
+                menor = (jogador[0] - caixas[1][0]) * (jogador[0] - caixas[1][0]) + (jogador[1] - caixas[1][1])*(jogador[1] - caixas[1][1])
+                Tx = caixas[1][0]
+                Ty = caixas[1][1]
+            if(len(caixas) >= 3):
+                if((jogador[0] - caixas[2][0]) * (jogador[0] - caixas[2][0]) + (jogador[1] - caixas[2][1])*(jogador[1] - caixas[2][1]) < 4*menor):
+                    menor = (jogador[0] - caixas[2][0]) * (jogador[0] - caixas[2][0]) + (jogador[1] - caixas[2][1])*(jogador[1] - caixas[2][1])
+                    Tx = caixas[2][0]
+                    Ty = caixas[2][1]
+    saida = saida + (const)*computacaoInicial(jogador[0], jogador[1], mapa, nivel, quant, dt, Tx, Ty)
+    if abs(saida) >= 1:
+        saida = (saida/abs(saida))
 
     pacote_anterior = values 
     servidor.send_message(cliente, str(saida))
