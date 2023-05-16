@@ -105,7 +105,7 @@ def define_equacoes(mapa, nivel, x, y, u, funcoes = True):
         
     elif(mapa == 4):
         if(nivel == 1):
-            const = 0.2
+            const = 0.5
             x = 10*x
             y = 10*y
             u  = 5*u
