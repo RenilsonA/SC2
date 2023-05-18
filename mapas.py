@@ -6,7 +6,7 @@ def define_equacoes(mapa, nivel, x, y, u, funcoes = True):
     l2 = 0
     if(mapa == 1):
         if(nivel == 1):
-            const = 0.15
+            const = 0.25
             l1 = - 5.2*x + 2.5*y + 3.2*u
             l2 = - 9.0*x - 0.8*y + 5.0*u
              
@@ -16,18 +16,18 @@ def define_equacoes(mapa, nivel, x, y, u, funcoes = True):
             l2 = - 9.0*x - 0.9*y + 5.0*u
             
         elif(nivel == 3):
-            const = 0.15
+            const = 0.25
             l1 = - 1.2*x + 2.0*y
             l2 =   3.6*x - 0.4*y - 5.0*u
             
         elif(nivel == 4):
-            const = 0.15
+            const = 0.25
             l1 =   1.0*x - 0.4*y + 0.6*u
             l2 =   1.8*x + 0.2*y - 5.0*u
             
         
     elif(mapa == 2):
-        const = 0.35
+        const = 0.25
         if(nivel == 1):
             l1 =   3.0*y + 1.0*u
             l2 = - 3.0*m.sin(8*x) - y
@@ -37,32 +37,33 @@ def define_equacoes(mapa, nivel, x, y, u, funcoes = True):
             l2 =   2.0*x - 2.0*y
             
         elif(nivel == 3):
+            const = 0.25
             l1 =   3.0*x*(0.5*x + 1.5*y) + 2.0*u
             l2 =   3.0*(x - y) + 1.0*u*u
             
         elif(nivel == 4):
-            const = 0.05
+            const = 0.25
             l1 = - 10.0*(x - 0.7)*(x + 0.7) + 5.0*u
             l2 = - 1.0*y + 2.0*u
                     
     elif(mapa == 3):
         if(nivel == 1):
-            const = 0.1
+            const = 0.3
             x = 10*x
             y = 10*y
             u  = 5*u
             l1 = 1.0*y + 0.5*u
-            l2 = - 0.5*(x - y) + 0.8*u
+            l2 = - 0.5*(x + y) + 0.8*u
             if x > y:
                 l1 = l1 + 3
             else:
-                l1 = l2 - 3
+                l1 = l1 - 3
             
             l1 = l1/3
             l2 = l2/3
         
         elif(nivel == 2):
-            const = 0.2
+            const = 0.3
             l1 = -1.0*y
             l2 = -0.25*x
             if x > 0:
@@ -71,7 +72,7 @@ def define_equacoes(mapa, nivel, x, y, u, funcoes = True):
                 l2 = l2 - 2*u
                     
         elif(nivel == 3):
-            const = 0.2
+            const = 0.3
             x = 10*x
             y = 10*y
             u  = 5*u
@@ -86,7 +87,7 @@ def define_equacoes(mapa, nivel, x, y, u, funcoes = True):
             l2 = l2/4
             
         elif(nivel == 4):
-            const = 0.2
+            const = 0.3
             x = 10*x
             y = 10*y
             u  = 5*u
@@ -105,7 +106,7 @@ def define_equacoes(mapa, nivel, x, y, u, funcoes = True):
         
     elif(mapa == 4):
         if(nivel == 1):
-            const = 0.5
+            const = 0.8
             x = 10*x
             y = 10*y
             u  = 5*u
@@ -152,7 +153,7 @@ def define_equacoes(mapa, nivel, x, y, u, funcoes = True):
             l2 = l2/5.0
         
         elif(nivel == 3):
-            const = 0.02
+            const = 0.7
             x = 10*x
             y = 10*y
             u  = 5*u
@@ -180,17 +181,17 @@ def define_equacoes(mapa, nivel, x, y, u, funcoes = True):
             l2 = l2/5.0
         
         elif(nivel == 4):
-            const = 0.02
+            const = 0.6
             x = 10*x
             y = 10*y
             u  = 5*u
             l1 = 1.0*y + 1.0*u
             l2 = -(9.8/1.0)*m.sin(x) - 1.0*y
-            if l1 >= 0:
+            if l1 > 0:
                 l1 = 2.0
             else:
                 l1 = -2.0
-            if l2 >= 0:
+            if l2 > 0:
                 l2 = 2.0
             else:
                 l2 = -2.0
