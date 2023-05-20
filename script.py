@@ -76,7 +76,7 @@ def computacaoInicial(x, y, mapa, nivel, quant, dt, ObjetivosX, ObjetivosY, Cave
             for k in range(quant):
                 for q in range(len(ObjetivosX)):
                     f = 1 if q == 0 else 2
-                    distancia = f*(x11 - ObjetivosX[q])*(x11 - ObjetivosX[q]) + (y11 - ObjetivosY[q])*(y11 - ObjetivosY[q])
+                    distancia = f*((x11 - ObjetivosX[q])*(x11 - ObjetivosX[q]) + (y11 - ObjetivosY[q])*(y11 - ObjetivosY[q]))
                     if (distancia < distMinima): 
                         distMinima = distancia
                 l12 = mapas.define_equacoes(mapa, nivel, x11, y11, u)
@@ -130,7 +130,7 @@ def receber_mensagem(cliente, servidor, pacote):
     ObjetivosY = []
     ObjetivosX.append(alvo[0])
     ObjetivosY.append(alvo[1])
-    quant = 50
+    quant = 20
     dt = 0.01
     if(len(caixas) >= 1 and nivel != 3):
         ObjetivosX.append(caixas[0][0])
